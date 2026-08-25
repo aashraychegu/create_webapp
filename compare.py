@@ -35,17 +35,20 @@ def median_abs(x):
 parse = tomllib.loads(Path("./mapping.toml").read_text())
 
 display_table = []
-data_field_table = []
 
 field_mappings = {
     "Data Fields": "data_fields.png",
     "Absolute Residuals": "equation_residuals_absolute.png",
     "Relative Residuals": "equation_residuals.png",
+    "Equation Terms": "equation_terms.png",
     "Viscosity": "fields.png",
     "Effective Strain": "stresses/e_eff.png",
     "Extensional Stress (R_xx)": "stresses/R_xx.png",
+    "Tau Effective": "stresses/tau_eff.png",
     "Tau 1": "stresses/tau_1.png",
     "Tau 2": "stresses/tau_2.png",
+    "Mean Residuals": "residuals/mean",
+    "Median Residuals": "residuals/median"
 }
 
 for count, subfolder in tqdm(list(enumerate(subfolders))):
@@ -74,45 +77,72 @@ for count, subfolder in tqdm(list(enumerate(subfolders))):
                           med_res_y
                         ])
     
-    plot_dir = subfolder / "plots"
-    if plot_dir.exists():
-        data_field_mappings = {"Inversion Name" : inversion_name,}
-        for field, path in field_mappings.items():
-            field_path = plot_dir / path
-            if field_path.exists():
-                data_field_mappings[field] = field_path
-        data_field_table.append(data_field_mappings)
-    
 
-headers = [ "Inversion\nName", 
+headers = [ "Inversion Name", 
             "Shelf", 
-            "Velocity\nProduct",
-            "Velocity\nStart", 
-            "Velocity\nEnd", 
-            "Thickness\nProduct", 
-            "Thickness\nStart", 
-            "Thickness\nEnd", 
-            "Mean-Abs\nX Residual", 
-            "Mean-Abs\nY Residual", 
-            "Median-Abs\nX Residual", 
-            "Median-Abs\nY Residual", 
+            "Velocity Product",
+            "Velocity Start", 
+            "Velocity End", 
+            "Thickness Product", 
+            "Thickness Start", 
+            "Thickness End", 
+            "Mean-Abs X Residual", 
+            "Mean-Abs Y Residual", 
+            "Median-Abs X Residual", 
+            "Median-Abs Y Residual", 
         ]
 
-show_headers = [ "Inversion\nName", 
+
+show_headers = [ "Inversion Name", 
                  "Shelf", 
-                 "Velocity\nEnd", 
-                 "Mean-Abs\nX Residual", 
-                 "Mean-Abs\nY Residual", 
-                 "Median-Abs\nX Residual", 
-                 "Median-Abs\nY Residual", 
+                 "Velocity End", 
+                 "Mean-Abs X Residual", 
+                 "Mean-Abs Y Residual", 
+                 "Median-Abs X Residual", 
+                 "Median-Abs Y Residual", 
             ]
 
 dataframe = pd.DataFrame(display_table, columns=headers)
-data_field_frame = pd.DataFrame(data_field_table)
-data_fields = data_field_frame.columns.to_list()
-data_fields.remove("Inversion Name")
+data_fields = list(field_mappings.keys())
 
-all_inversions = data_field_frame["Inversion Name"].to_list()
+all_inversions = dataframe["Inversion Name"].to_list()
+
+def handle_residuals(name1, name2, field):
+    mapping = field_mappings[field]
+    row1 = dataframe.loc[dataframe["Inversion Name"] == name1]
+    row2 = dataframe.loc[dataframe["Inversion Name"] == name2]
+    if "mean" in mapping:
+        x1r = float(row1["Mean-Abs X Residual"].iloc[0])
+        y1r = float(row1["Mean-Abs Y Residual"].iloc[0])
+        x2r = float(row2["Mean-Abs X Residual"].iloc[0])
+        y2r = float(row2["Mean-Abs Y Residual"].iloc[0])
+        sum1 = x1r + y1r
+        sqsum1 = (x1r**2 + y1r**2)**(1/2)
+        sum2 = x2r + y2r
+        sqsum2 = (x2r**2 + y2r**2)**(1/2)
+        type_str = "Mean"
+    elif "median" in mapping:
+        x1r = float(row1["Median-Abs X Residual"].iloc[0])
+        y1r = float(row1["Median-Abs Y Residual"].iloc[0])
+        x2r = float(row2["Median-Abs X Residual"].iloc[0])
+        y2r = float(row2["Median-Abs Y Residual"].iloc[0])
+        sum1 = x1r + y1r
+        sqsum1 = (x1r**2 + y1r**2)**(1/2)
+        sum2 = x2r + y2r
+        sqsum2 = (x2r**2 + y2r**2)**(1/2)
+        type_str = "Median"
+    else:
+        return ""
+
+    residual_string = f"""
+# {type_str} Residuals:
+|Inversion|X Residual|Y Residual|Sum|Squared Sum|
+|---:|:---:|:---:|:---:|:---:|
+|{name1}|{x1r}|{y1r}|{sum1}|{sqsum1}|
+|{name2}|{x2r}|{y2r}|{sum2}|{sqsum2}|
+|Difference|{x1r - x2r}|{y1r - y2r}|{sum1 - sum2}|{sqsum1 - sqsum2}|
+"""
+    return residual_string
 
 def _valid_bbox(da):
     valid = da.notnull()
@@ -185,6 +215,8 @@ def get_paired_plot(name1, name2, fields, pad=0.05):
             fig.suptitle(field)
             figs.append((field, fig))
             plt.close(fig)
+        elif "residuals/" in mapping:
+            figs.append((field,handle_residuals(name1, name2, field)))
         else:
             path1 = (folder_path / name1 / "plots" / field_mappings[field]).as_posix()
             path2 = (folder_path / name2 / "plots" / field_mappings[field]).as_posix()
@@ -224,6 +256,8 @@ def get_diff_plot(name1, name2, fields, pad=0.05):
             ax.set_title(f"{field}: {name1} − {name2}")
             figs.append((field,fig))
             plt.close(fig)
+        elif "residuals/" in mapping:
+            figs.append((field,handle_residuals(name1, name2, field)))
         else:
             path1 = (folder_path / name1 / "plots" / field_mappings[field]).as_posix()
             path2 = (folder_path / name2 / "plots" / field_mappings[field]).as_posix()
@@ -238,11 +272,10 @@ with gr.Blocks(fill_height = True, fill_width = True) as demo:
             inversion1 = gr.Dropdown(all_inversions, value = None, label = "Inversion 1")
         with gr.Column():
             inversion2 = gr.Dropdown(all_inversions, value = None, label = "Inversion 2")
-        with gr.Column():
-            selected_data_fields = gr.CheckboxGroup(choices = data_fields,value=data_fields, label = "Data Fields")
-            def update_data_field_names(fields):
-                field_string = "; ".join(fields)
-                return (f"Show Fields Side by Side: {field_string}",f"Plot Fields: {field_string}",f"Plot the Difference for Fields: {field_string}")
+    selected_data_fields = gr.CheckboxGroup(choices = data_fields,value=data_fields, label = "Data Fields")
+    def update_data_field_names(fields):
+        field_string = "; ".join(fields)
+        return (f"Show Fields Side by Side: {field_string}",f"Plot Fields: {field_string}",f"Plot the Difference for Fields: {field_string}")
 
     with gr.Tabs():
         with gr.Tab("Table"):
@@ -269,15 +302,21 @@ with gr.Blocks(fill_height = True, fill_width = True) as demo:
             @gr.render(inputs=[inversion1, inversion2, selected_data_fields], triggers = [side_by_side.click])
             def show_side_by_side(name1: str, name2: str, fields: list, progress=gr.Progress()):
                 if name1 is None or name2 is None:
+                    gr.Error("Select Inversions")
                     return None
-                for field in progress.tqdm(fields):
-                    gr.Markdown(f"### Comparing: {name1}, {name2} - {field}: ")
-                    with gr.Row():
-                        path1 = (folder_path / name1 / "plots" / field_mappings[field]).as_posix()
-                        path2 = (folder_path / name2 / "plots" / field_mappings[field]).as_posix()
-                        with Image.open(path1) as img1, Image.open(path2) as img2:
-                            gr.Image(img1)
-                            gr.Image(img2)
+                gr.Markdown(f"# Comparing: {name1}, {name2}: ")
+                with gr.Tabs():
+                    for field in progress.tqdm(fields):
+                        with gr.Tab(field):
+                            with gr.Row():
+                                if field in ["Mean Residuals", "Median Residuals"]:
+                                    gr.Markdown(handle_residuals(name1,name2,field_mappings[field]), label = "Residuals")
+                                else:
+                                    path1 = (folder_path / name1 / "plots" / field_mappings[field]).as_posix()
+                                    path2 = (folder_path / name2 / "plots" / field_mappings[field]).as_posix()
+                                    with Image.open(path1) as img1, Image.open(path2) as img2:
+                                        gr.Image(img1)
+                                        gr.Image(img2)
 
         with gr.Tab("Comparison Plot"):
             comparison_plot = gr.Button("Plot All Data Fields")
@@ -285,20 +324,25 @@ with gr.Blocks(fill_height = True, fill_width = True) as demo:
             @gr.render(inputs=[inversion1, inversion2, selected_data_fields],triggers = [comparison_plot.click])
             def plot_comparisons(name1: str, name2: str, fields: list, progress = gr.Progress()):
                 if name1 is None or name2 is None:
+                    gr.Error("Select Inversions")
                     return None
                 figs = get_paired_plot(name1, name2, fields)
-                for field,fig in progress.tqdm(figs):
-                    with gr.Column():
-                        gr.Markdown(f"### Comparing: {name1}, {name2} - {field}: ")
-                        if isinstance(fig,tuple):
-                            with gr.Row():
-                                path1, path2 = fig
-                                with Image.open(path1) as img1, Image.open(path2) as img2:
-                                    gr.Image(img1)
-                                    gr.Image(img2)
-                        else:
-                            with gr.Row():
-                                gr.Plot(fig)                        
+                gr.Markdown(f"# Comparing: {name1} and {name2}")
+                with gr.Tabs():
+                    for field,fig in progress.tqdm(figs):
+                        with gr.Tab(field):
+                            with gr.Column():
+                                if isinstance(fig,str):
+                                    gr.Markdown(fig, label = "Residuals")
+                                elif isinstance(fig,tuple):
+                                    with gr.Row():
+                                        path1, path2 = fig
+                                        with Image.open(path1) as img1, Image.open(path2) as img2:
+                                            gr.Image(img1,label=f"{name1}/{field}")
+                                            gr.Image(img2,label=f"{name2}/{field}")
+                                else:
+                                    with gr.Row():
+                                        gr.Plot(fig, label = f"{name1}/{field} vs. {name2}/{field}")                        
 
         with gr.Tab("Difference Plot"):
             difference_plot = gr.Button("Plot the Difference for All Data Fields")
@@ -306,24 +350,29 @@ with gr.Blocks(fill_height = True, fill_width = True) as demo:
             @gr.render(inputs=[inversion1, inversion2, selected_data_fields],triggers = [difference_plot.click])
             def plot_differences(name1: str, name2: str, fields: list, progress = gr.Progress()):
                 if name1 is None or name2 is None:
+                    gr.Error("Select Inversions")
                     return None
                 figs = get_diff_plot(name1, name2, fields)
-                for field,fig in progress.tqdm(figs):
-                    with gr.Column():
-                        gr.Markdown(f"### Comparing: {name1}, {name2} - {field}: ")
-                        if isinstance(fig,tuple):
-                            with gr.Row():
-                                path1, path2 = fig
-                                with Image.open(path1) as img1, Image.open(path2) as img2:
-                                    gr.Image(img1)
-                                    gr.Image(img2)
-                        else:
-                            with gr.Row():
-                                gr.Plot(fig) 
-                        
+                gr.Markdown(f"# Comparing: {name1} and {name2}")
+                with gr.Tabs():
+                    for field,fig in progress.tqdm(figs):
+                        with gr.Tab(field):
+                            with gr.Column():
+                                if isinstance(fig,str):
+                                    gr.Markdown(fig, label = "Residuals")
+                                elif isinstance(fig,tuple):
+                                    with gr.Row():
+                                        path1, path2 = fig
+                                        with Image.open(path1) as img1, Image.open(path2) as img2:
+                                            gr.Image(img1,label=f"{name1}/{field}")
+                                            gr.Image(img2,label=f"{name2}/{field}")
+                                else:
+                                    with gr.Row():
+                                        gr.Plot(fig, label = f"{name1}/{field} minus {name2}/{field}") 
+                                
     selected_data_fields.input(update_data_field_names,inputs = selected_data_fields,outputs = [side_by_side, comparison_plot, difference_plot])
 
-demo.launch(share=True, allowed_paths = [folder_path.as_posix()])
+demo.launch(share=True, allowed_paths = [folder_path.as_posix()], theme=gr.Theme.from_hub("Nymbo/Nymbo_Theme"))
 
 # Top interface: Select 1, Select 2
 # 4 tabs: dataframe, side by side, comparison_plot, diff_plot
