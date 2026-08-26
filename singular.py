@@ -219,7 +219,7 @@ with gr.Blocks(fill_height=True, fill_width=True) as demo:
             with gr.Row():
                 prev_button = gr.Button("← Previous")
                 next_button = gr.Button("Next →")
-            plot_button = gr.Button("Plot All Data Fields")
+            plot_button = gr.Button("Plot Selected Data")
 
     prev_button.click(lambda cur: step_inversion(cur, -1), inputs=inversion, outputs=inversion)
     next_button.click(lambda cur: step_inversion(cur, +1), inputs=inversion, outputs=inversion)

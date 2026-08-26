@@ -1136,3 +1136,63 @@
     "2022",
 ]
 
+"2015-11-15_IJ-thickness_velocity" = [
+    "PIG Velocity",
+    "2015-11-15_IJ-thickness",
+    "2015-11-15_IJ-thickness",
+]
+"2015-11-15_IJ-thickness_thickness" = [
+    "PIG Thickness",
+    "2015-11-15_IJ-thickness",
+    "2015-11-15_IJ-thickness",
+]
+"2015-11-15_IJ-thickness_thresholded-1000_velocity" = [
+    "PIG Velocity",
+    "2015-11-15_IJ-thickness_thresholded-1000",
+    "2015-11-15_IJ-thickness_thresholded-1000",
+]
+"2015-11-15_IJ-thickness_thresholded-1000_thickness" = [
+    "PIG Thickness",
+    "2015-11-15_IJ-thickness_thresholded-1000",
+    "2015-11-15_IJ-thickness_thresholded-1000",
+]
+"2015-11-15_BM4-thickness_velocity" = [
+    "PIG Velocity",
+    "2015-11-15_BM4-thickness",
+    "2015-11-15_BM4-thickness",
+]
+"2015-11-15_BM4-thickness_thickness" = [
+    "PIG Thickness",
+    "2015-11-15_BM4-thickness",
+    "2015-11-15_BM4-thickness",
+]
+"2015-11-15_BM4-thickness_thresholded-500_velocity" = [
+    "PIG Velocity",
+    "2015-11-15_BM4-thickness_thresholded-500",
+    "2015-11-15_BM4-thickness_thresholded-500",
+]
+"2015-11-15_BM4-thickness_thresholded-500_thickness" = [
+    "PIG Thickness",
+    "2015-11-15_BM4-thickness_thresholded-500",
+    "2015-11-15_BM4-thickness_thresholded-500",
+]
+"2015-11-15_BM4-thickness_thresholded-1000_velocity" = [
+    "PIG Velocity",
+    "2015-11-15_BM4-thickness_thresholded-1000",
+    "2015-11-15_BM4-thickness_thresholded-1000",
+]
+"2015-11-15_BM4-thickness_thresholded-1000_thickness" = [
+    "PIG Thickness",
+    "2015-11-15_BM4-thickness_thresholded-1000",
+    "2015-11-15_BM4-thickness_thresholded-1000",
+]
+"2015-11-15_BM4-thickness_thresholded-1500_velocity" = [
+    "PIG Velocity",
+    "2015-11-15_BM4-thickness_thresholded-1500",
+    "2015-11-15_BM4-thickness_thresholded-1500",
+]
+"2015-11-15_BM4-thickness_thresholded-1500_thickness" = [
+    "PIG Thickness",
+    "2015-11-15_BM4-thickness_thresholded-1500",
+    "2015-11-15_BM4-thickness_thresholded-1500",
+]
