@@ -3,6 +3,7 @@ import tomllib
 import pathlib as pl
 from pathlib import Path
 from argparse import ArgumentParser
+from collections import namedtuple
 # pyrefly: ignore [missing-import]
 import numpy as np
 # pyrefly: ignore [missing-import]
@@ -39,20 +40,39 @@ parse = tomllib.loads(Path("./mapping.toml").read_text())
 
 display_table = []
 
-field_mappings = {
-    "Data Fields": "data_fields.png",
-    "Absolute Residuals": "equation_residuals_absolute.png",
-    "Relative Residuals": "equation_residuals.png",
-    "Equation Terms": "equation_terms.png",
-    "Viscosity": "fields.png",
-    "Effective Strain": "stresses/e_eff.png",
-    "Extensional Stress (R_xx)": "stresses/R_xx.png",
-    "Tau Effective": "stresses/tau_eff.png",
-    "Tau 1": "stresses/tau_1.png",
-    "Tau 2": "stresses/tau_2.png",
-    "Mean Resid.": "residuals/mean",
-    "Median Resid.": "residuals/median"
-}
+FieldMapping = namedtuple("FieldMapping", ["label", "data_folder", "accessor", "type"])
+
+field_mappings = [
+    FieldMapping("Data Fields",                                 "plots",       "data_fields.png",                                  "image"),
+    FieldMapping("Absolute Residuals",                          "plots",       "equation_residuals_absolute.png",                  "image"),
+    FieldMapping("Relative Residuals",                          "plots",       "equation_residuals.png",                           "image"),
+    FieldMapping("Equation Terms",                              "plots",       "equation_terms.png",                               "image"),
+    FieldMapping("Thickness Difference",                        "eval_images", "Thickness Difference.png",                         "image"),
+    FieldMapping("X Velocity Difference",                       "eval_images", "X Velocity Difference.png",                        "image"),
+    FieldMapping("Y Velocity Difference",                       "eval_images", "Y Velocity Difference.png",                        "image"),
+    FieldMapping("Speed Difference",                            "eval_images", "Y Velocity Difference.png",                        "image"),
+    FieldMapping("Log Effective Strain Rate and Log Viscosity", "eval_images", "Log Effective Strain Rate and Log Viscosity.png",  "image"),
+    FieldMapping("Viscosity",                                   "eval_images", "Viscosity.png",                                    "image"),
+    FieldMapping("Log Viscosity",                               "eval_images", "Log Viscosity.png",                                "image"),
+    FieldMapping("Effective Strain Rate",                       "eval_images", "Effective Strain Rate.png",                        "image"),
+    FieldMapping("Log Effective Strain Rate",                   "eval_images", "Log Effective Strain Rate.png",                    "image"),
+    FieldMapping("Strain Rate XX Component",                    "eval_images", "Strain Rate XX Component.png",                     "image"),
+    FieldMapping("Strain Rate XY Component",                    "eval_images", "Strain Rate XY Component.png",                     "image"),
+    FieldMapping("Strain YY Component",                         "eval_images", "Strain YY Component.png",                          "image"),
+    FieldMapping("Effective Stress",                            "eval_images", "Effective Stress.png",                             "image"),
+    FieldMapping("Stress XX Component",                         "eval_images", "Stress XX Component.png",                          "image"),
+    FieldMapping("Stress XY Component",                         "eval_images", "Stress XY Component.png",                          "image"),
+    FieldMapping("Stress YY Component",                         "eval_images", "Stress YY Component.png",                          "image"),
+    FieldMapping("Stress Primary Component",                    "eval_images", "Stress Primary Component.png",                     "image"),
+    FieldMapping("Stress Secondary Component",                  "eval_images", "Stress Secondary Component.png",                   "image"),
+    FieldMapping("Extensional Stress (R_xx)",                   "eval_images", "Extensional Stress (R_xx).png",                    "image"),
+    FieldMapping("Histogram of Stress",                         "eval_images", "Histogram of Stress.png",                          "image"),
+    FieldMapping("Effective Stress to Effective Strain",        "eval_images", "Effective Stress to Effective Strain.png",         "image"),
+    FieldMapping("Mean Resid.",                                 "",            "residuals/mean",                                   "markdown"),
+    FieldMapping("Median Resid.",                               "",            "residuals/median",                                 "markdown"),
+]
+
+_field_lookup = {fm.label: fm for fm in field_mappings}
 
 for count, subfolder in tqdm(list(enumerate(subfolders))):
     resid_file = subfolder / "field_and_residual_data.npz"
@@ -107,13 +127,13 @@ show_headers = ["Inversion Name",
                 ]
 
 dataframe = pd.DataFrame(display_table, columns=headers)
-data_fields = list(field_mappings.keys())
+data_fields = [fm.label for fm in field_mappings]
 
 all_inversions = dataframe["Inversion Name"].to_list()
 
 
 def handle_residuals(name, field):
-    mapping = field_mappings[field]
+    mapping = _field_lookup[field].accessor
     row = dataframe.loc[dataframe["Inversion Name"] == name]
     if "mean" in mapping:
         xr_ = float(row["Mean-Abs X Residual"].iloc[0])
@@ -165,12 +185,14 @@ def _crop(da, xmin, xmax, ymin, ymax):
 
 
 def get_single_plot(name, fields, pad=0.05):
-    zarr_path = folder_path / name / "stress.zarr"
-    zarr = xr.open_zarr(zarr_path, consolidated=False)
     figs = []
     for field in fields:
-        mapping = field_mappings[field]
-        if "stresses" in mapping:
+        fm = _field_lookup[field]
+        mapping = fm.accessor
+
+        if fm.type == "plot":
+            zarr_path = folder_path / name / "stress.zarr"
+            zarr = xr.open_zarr(zarr_path, consolidated=False)
             field_key = mapping.replace("stresses/", "").split(".")[0]
             field_da = zarr[field_key]
 
@@ -192,11 +214,14 @@ def get_single_plot(name, fields, pad=0.05):
             fig.suptitle(field)
             figs.append((field, fig))
             plt.close(fig)
-        elif "residuals/" in mapping:
+
+        elif fm.type == "markdown":
             figs.append((field, handle_residuals(name, field)))
-        else:
-            path = (folder_path / name / "plots" / mapping).as_posix()
+
+        elif fm.type == "image":
+            path = (folder_path / name / fm.data_folder / mapping).as_posix()
             figs.append((field, path))
+
     return figs
 
 
