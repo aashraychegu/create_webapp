@@ -1196,3 +1196,85 @@
     "2015-11-15_BM4-thickness_thresholded-1500",
     "2015-11-15_BM4-thickness_thresholded-1500",
 ]
+
+"smoothed-2007-2009_2009-09-15_velocity" = [
+    "PIG Velocity",
+    "smoothed-2007-2009_2009-09-15",
+    "smoothed-2007-2009_2009-09-15",
+]
+"smoothed-2007-2009_2009-09-15_thickness" = [
+    "PIG Thickness",
+    "smoothed-2007-2009_2009-09-15",
+    "smoothed-2007-2009_2009-09-15",
+]
+"BM4_cleaned-2015-11-15_velocity" = [
+    "PIG Velocity",
+    "BM4_cleaned-2015-11-15",
+    "BM4_cleaned-2015-11-15",
+]
+"BM4_cleaned-2015-11-15_thickness" = [
+    "PIG Thickness",
+    "BM4_cleaned-2015-11-15",
+    "BM4_cleaned-2015-11-15",
+]
+"JT_cleaned-2015-11-15_velocity" = [
+    "PIG Velocity",
+    "JT_cleaned-2015-11-15",
+    "JT_cleaned-2015-11-15",
+]
+"JT_cleaned-2015-11-15_thickness" = [
+    "PIG Thickness",
+    "JT_cleaned-2015-11-15",
+    "JT_cleaned-2015-11-15",
+]
+"cleaned-2017-08-15_velocity" = [
+    "PIG Velocity",
+    "cleaned-2017-08-15",
+    "cleaned-2017-08-15",
+]
+"cleaned-2017-08-15_thickness" = [
+    "PIG Thickness",
+    "cleaned-2017-08-15",
+    "cleaned-2017-08-15",
+]
+"cleaned-2017-11-15_velocity" = [
+    "PIG Velocity",
+    "cleaned-2017-11-15",
+    "cleaned-2017-11-15",
+]
+"cleaned-2017-11-15_thickness" = [
+    "PIG Thickness",
+    "cleaned-2017-11-15",
+    "cleaned-2017-11-15",
+]
+"BM4-cleaned-2017-08-15_velocity" = [
+    "PIG Velocity",
+    "BM4-cleaned-2017-08-15",
+    "BM4-cleaned-2017-08-15",
+]
+"BM4-cleaned-2017-08-15_thickness" = [
+    "PIG Thickness",
+    "BM4-cleaned-2017-08-15",
+    "BM4-cleaned-2017-08-15",
+]
+"BM4-cleaned-2017-11-15_velocity" = [
+    "PIG Velocity",
+    "BM4-cleaned-2017-11-15",
+    "BM4-cleaned-2017-11-15",
+]
+"BM4-cleaned-2017-11-15_thickness" = [
+    "PIG Thickness",
+    "BM4-cleaned-2017-11-15",
+    "BM4-cleaned-2017-11-15",
+]
+
+"cleaned-rignot-2020-2022_velocity" = [
+    "PIG Velocity",
+    "cleaned-rignot-2020-2022",
+    "cleaned-rignot-2020-2022",
+]
+"cleaned-rignot-2020-2022_thickness" = [
+    "PIG Thickness",
+    "cleaned-rignot-2020-2022",
+    "cleaned-rignot-2020-2022",
+]

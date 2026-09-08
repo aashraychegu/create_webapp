@@ -47,6 +47,8 @@ field_mappings = [
     FieldMapping("Absolute Residuals",                          "plots",       "equation_residuals_absolute.png",                  "image"),
     FieldMapping("Relative Residuals",                          "plots",       "equation_residuals.png",                           "image"),
     FieldMapping("Equation Terms",                              "plots",       "equation_terms.png",                               "image"),
+    FieldMapping("Loss History",                                "plots",       "loss.png",                                         "image"),
+    FieldMapping("Loss Components History",                     "plots",       "loss_components_history.png",                      "image"),
     FieldMapping("Thickness Difference",                        "eval_images", "Thickness Difference.png",                         "image"),
     FieldMapping("X Velocity Difference",                       "eval_images", "X Velocity Difference.png",                        "image"),
     FieldMapping("Y Velocity Difference",                       "eval_images", "Y Velocity Difference.png",                        "image"),
